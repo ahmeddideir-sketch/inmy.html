@@ -3,145 +3,133 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduEarn Pro - স্টুডেন্ট নলেজ প্ল্যাটফর্ম</title>
+    <title>EduEarn Pro - Real Knowledge Platform</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
-        :root {
-            --primary: #1877f2; --secondary: #42b72a; --bg: #f0f2f5; --white: #ffffff; --text: #1c1e21;
-        }
-        /* Dark Mode variables */
-        .dark-mode {
-            --bg: #18191a; --white: #242526; --text: #e4e6eb;
-        }
-
-        body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color: var(--text); margin: 0; transition: 0.3s; }
-        .hidden { display: none !important; }
+        :root { --primary: #4f46e5; --bg: #f3f4f6; --white: #ffffff; --text: #1f2937; }
+        .dark-mode { --bg: #111827; --white: #1f2937; --text: #f9fafb; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: var(--text); margin: 0; transition: 0.3s; }
+        nav { background: var(--white); padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 1000; }
+        .container { max-width: 600px; margin: 20px auto; padding: 0 15px; }
+        .card { background: var(--white); border-radius: 15px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
         
-        /* Navigation & Dark Mode Toggle */
-        nav {
-            background: var(--white); padding: 10px 5%; display: flex; 
-            justify-content: space-between; align-items: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 1000;
-        }
-        .logo { font-size: 24px; font-weight: bold; color: var(--primary); cursor: pointer; }
-        .nav-btns { display: flex; gap: 10px; align-items: center; }
-
-        /* Container & Cards */
-        .container { max-width: 800px; margin: 20px auto; padding: 0 15px; }
-        .card { background: var(--white); border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        /* Member Counter Style */
+        .member-stat { display: flex; justify-content: space-around; background: linear-gradient(135deg, #4f46e5, #9333ea); color: white; padding: 20px; border-radius: 15px; margin-bottom: 20px; text-align: center; }
         
-        /* Input Styles */
-        input, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; background: var(--bg); color: var(--text); box-sizing: border-box; }
-        .btn { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; }
-        
-        /* Comment & Rating Section */
-        .post-action { display: flex; gap: 15px; margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px; }
-        .rating-stars { color: #ffd700; cursor: pointer; font-size: 20px; }
-        .comment-box { margin-top: 10px; font-size: 14px; background: var(--bg); padding: 8px; border-radius: 5px; }
-
-        /* Profile & Payment Info */
-        .profile-img { width: 80px; height: 80px; border-radius: 50%; background: #ddd; margin-bottom: 10px; }
-        .payment-box { background: #e7f3ff; color: #1877f2; padding: 15px; border-radius: 8px; border-left: 5px solid var(--primary); }
-
+        select, textarea, input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: 1px solid #ddd; background: var(--bg); color: var(--text); }
+        .btn { background: var(--primary); color: white; border: none; padding: 12px; border-radius: 10px; cursor: pointer; font-weight: bold; width: 100%; }
+        .badge { display: inline-block; padding: 5px 12px; border-radius: 20px; font-size: 12px; background: #e0e7ff; color: #4338ca; font-weight: bold; }
+        .hidden { display: none; }
+        .video-box { border-radius: 10px; overflow: hidden; margin: 10px 0; background: #000; }
     </style>
 </head>
 <body>
 
     <nav>
-        <div class="logo" onclick="showSection('home')">EduEarn</div>
-        <div class="nav-btns">
-            <button class="btn" onclick="toggleDarkMode()">🌓</button>
-            <button onclick="showSection('home')" style="background:none; border:none; color:var(--text); cursor:pointer;">🏠</button>
-            <button onclick="showSection('profile')" style="background:none; border:none; color:var(--text); cursor:pointer;">👤</button>
+        <div style="font-size: 22px; font-weight: bold; color: var(--primary); cursor: pointer;" onclick="showPage('home')">EduEarn</div>
+        <div style="display: flex; gap: 20px;">
+            <i class="fas fa-moon" onclick="toggleDark()" style="cursor:pointer;"></i>
+            <i class="fas fa-home" onclick="showPage('home')" style="cursor:pointer;"></i>
+            <i class="fas fa-trophy" onclick="showPage('awards')" style="cursor:pointer;"></i>
+            <i class="fas fa-user" onclick="showPage('profile')" style="cursor:pointer;"></i>
         </div>
     </nav>
 
     <div class="container">
-        
-        <div id="home-section">
-            <div class="card">
-                <h3>আজকের ভাবনা কি?</h3>
-                <textarea id="mainPost" placeholder="আপনার নলেজ শেয়ার করুন..."></textarea>
-                <button class="btn" onclick="addFullPost()">পাবলিশ</button>
+        <div class="member-stat">
+            <div>
+                <h2 id="mCount">১,৫৪০</h2>
+                <span>মোট মেম্বার</span>
             </div>
-            <div id="feed-container">
-                </div>
+            <div>
+                <h2 id="onlineCount">৬২</h2>
+                <span>অনলাইন</span>
+            </div>
         </div>
 
-        <div id="profile-section" class="hidden">
+        <div id="home-page">
+            <div class="card">
+                <h3>📢 নতুন পোস্ট করুন</h3>
+                <select id="category">
+                    <option value="ধর্ম">☪️ ধর্ম</option>
+                    <option value="আধুনিক বিজ্ঞান">🔬 আধুনিক বিজ্ঞান</option>
+                    <option value="সাহিত্য">📚 সাহিত্য</option>
+                    <option value="নিজস্ব চিন্তা">💡 নিজস্ব চিন্তা</option>
+                </select>
+                <textarea id="postText" rows="3" placeholder="আপনার বিশ্লেষণ লিখুন..."></textarea>
+                <input type="text" id="vidUrl" placeholder="YouTube লিঙ্ক দিন">
+                <button class="btn" onclick="addPost()">পাবলিশ করুন</button>
+            </div>
+            <div id="main-feed"></div>
+        </div>
+
+        <div id="awards-page" class="hidden">
+            <div class="card">
+                <h2 style="text-align:center;">🏆 লিডারবোর্ড</h2>
+                <p>১. আহমেদ দিদার (বিজ্ঞান) - ৪.৯ ⭐</p>
+                <p>২. আব্দুল্লাহ (ধর্ম) - ৪.৭ ⭐</p>
+                <hr>
+                <button class="btn" onclick="generateCert()">সার্টিফিকেট ডাউনলোড</button>
+            </div>
+        </div>
+
+        <div id="profile-page" class="hidden">
             <div class="card" style="text-align: center;">
-                <div class="profile-img" style="margin: 0 auto;"></div>
-                <h2 id="dispName">ইউজার নেম</h2>
-                <p id="dispEmail">user@example.com</p>
-                <button class="btn" style="background:var(--secondary)">প্রোফাইল এডিট</button>
-            </div>
-
-            <div class="card">
-                <h3>💳 পেমেন্ট ও বৃত্তি</h3>
-                <div class="payment-box">
-                    <p>মোট অর্জিত বৃত্তি: <strong>৳ ১,২০০</strong></p>
-                    <p>স্ট্যাটাস: 🟢 উইথড্রর জন্য এভেইলেবল</p>
-                </div>
-                <input type="text" placeholder="বিকাশ/নগদ নাম্বার দিন">
-                <button class="btn">টাকা উত্তোলন করুন</button>
+                <h3>ব্যালেন্স: ৳ <span id="wallet">০.০০</span></h3>
+                <input type="text" placeholder="বিকাশ নম্বর">
+                <button class="btn">টাকা উত্তোলন</button>
             </div>
         </div>
-
     </div>
 
     <script>
-        // Dark Mode Toggle
-        function toggleDarkMode() {
-            document.body.classList.toggle('dark-mode');
+        let balance = 0;
+        let members = 1540;
+
+        function toggleDark() { document.body.classList.toggle('dark-mode'); }
+        
+        function showPage(id) {
+            ['home-page', 'awards-page', 'profile-page'].forEach(p => document.getElementById(p).classList.add('hidden'));
+            document.getElementById(id + '-page').classList.remove('hidden');
         }
 
-        // Section Switching
-        function showSection(id) {
-            document.getElementById('home-section').classList.add('hidden');
-            document.getElementById('profile-section').classList.add('hidden');
-            document.getElementById(id + '-section').classList.remove('hidden');
-        }
-
-        // Add Post with Rating, Comment, Share
-        function addFullPost() {
-            const text = document.getElementById('mainPost').value;
+        function addPost() {
+            const cat = document.getElementById('category').value;
+            const text = document.getElementById('postText').value;
+            const video = document.getElementById('vidUrl').value;
             if(!text) return alert("কিছু লিখুন!");
 
-            const postHTML = `
-                <div class="card">
-                    <p>${text}</p>
-                    <div class="post-action">
-                        <span class="rating-stars" onclick="alert('রেটিং দেওয়ার জন্য ধন্যবাদ!')">⭐⭐⭐⭐☆</span>
-                        <span style="cursor:pointer" onclick="toggleComments(this)">💬 কমেন্ট</span>
-                        <span style="cursor:pointer; color:var(--primary)" onclick="sharePost()">🔗 শেয়ার</span>
-                    </div>
-                    <div class="comment-area hidden">
-                        <input type="text" placeholder="মন্তব্য লিখুন..." onkeypress="addComment(event, this)">
-                        <div class="comments-list"></div>
-                    </div>
-                </div>
-            `;
-            document.getElementById('feed-container').insertAdjacentHTML('afterbegin', postHTML);
-            document.getElementById('mainPost').value = "";
-        }
-
-        function toggleComments(btn) {
-            const area = btn.parentElement.nextElementSibling;
-            area.classList.toggle('hidden');
-        }
-
-        function addComment(e, input) {
-            if(e.key === 'Enter' && input.value) {
-                const list = input.nextElementSibling;
-                list.innerHTML += `<div class="comment-box"><b>আপনি:</b> ${input.value}</div>`;
-                input.value = "";
+            let videoHTML = "";
+            if(video.includes("youtube.com") || video.includes("youtu.be")) {
+                const id = video.split('v=')[1] || video.split('/').pop();
+                videoHTML = `<div class="video-box"><iframe width="100%" height="250" src="https://www.youtube.com/embed/${id}" frameborder="0" allowfullscreen></iframe></div>`;
             }
+
+            const post = `<div class="card"><span class="badge">${cat}</span><p>${text}</p>${videoHTML}<div class="rating" onclick="addMoney()">⭐⭐⭐⭐⭐ (৫.০)</div></div>`;
+            document.getElementById('main-feed').insertAdjacentHTML('afterbegin', post);
+            
+            // নতুন পোস্ট হলে মেম্বার ১ জন বাড়ে (সিমুলেশন)
+            members++;
+            document.getElementById('mCount').innerText = members.toLocaleString('bn-BD');
+            
+            document.getElementById('postText').value = "";
+            document.getElementById('vidUrl').value = "";
         }
 
-        function sharePost() {
-            const url = window.location.href;
-            navigator.clipboard.writeText(url);
-            alert("লিঙ্ক কপি হয়েছে! এখন ফেসবুক বা হোয়াটসঅ্যাপে শেয়ার করুন।");
+        function addMoney() {
+            balance += 10;
+            document.getElementById('wallet').innerText = balance.toFixed(2);
+            alert("আপনার ফান্ডে ১০ টাকা যোগ হয়েছে!");
+        }
+
+        function generateCert() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({ orientation: 'landscape' });
+            doc.text("EduEarn Official Certificate", 148, 80, null, null, 'center');
+            doc.text("অসামান্য অবদানের জন্য আপনাকে এই স্বীকৃতি দেওয়া হলো", 148, 110, null, null, 'center');
+            doc.save("certificate.pdf");
         }
     </script>
 </body>
-</html>
+                    </html>
