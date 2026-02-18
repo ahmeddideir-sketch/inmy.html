@@ -3,34 +3,145 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduEarn - স্টুডেন্ট নলেজ প্ল্যাটফর্ম</title>
+    <title>EduEarn Pro - স্টুডেন্ট নলেজ প্ল্যাটফর্ম</title>
     <style>
         :root {
-            --primary: #1877f2;
-            --secondary: #42b72a;
-            --bg: #f0f2f5;
-            --white: #ffffff;
+            --primary: #1877f2; --secondary: #42b72a; --bg: #f0f2f5; --white: #ffffff; --text: #1c1e21;
+        }
+        /* Dark Mode variables */
+        .dark-mode {
+            --bg: #18191a; --white: #242526; --text: #e4e6eb;
         }
 
-        body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color: var(--text); margin: 0; transition: 0.3s; }
         .hidden { display: none !important; }
-
-        /* Navigation */
+        
+        /* Navigation & Dark Mode Toggle */
         nav {
             background: var(--white); padding: 10px 5%; display: flex; 
             justify-content: space-between; align-items: center;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 1000;
         }
-        .logo { font-size: 26px; font-weight: bold; color: var(--primary); cursor: pointer; }
-        .nav-links button { background: none; border: none; font-size: 16px; margin-left: 15px; cursor: pointer; color: #555; font-weight: 600; }
-        .nav-links button:hover { color: var(--primary); }
+        .logo { font-size: 24px; font-weight: bold; color: var(--primary); cursor: pointer; }
+        .nav-btns { display: flex; gap: 10px; align-items: center; }
 
-        /* Layout */
-        .container { max-width: 1100px; margin: 20px auto; display: flex; gap: 20px; padding: 0 15px; }
-        .sidebar { width: 250px; position: sticky; top: 80px; height: fit-content; }
-        .sidebar-card { background: var(--white); border-radius: 8px; padding: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .feed { flex: 1; }
+        /* Container & Cards */
+        .container { max-width: 800px; margin: 20px auto; padding: 0 15px; }
         .card { background: var(--white); border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        
+        /* Input Styles */
+        input, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; background: var(--bg); color: var(--text); box-sizing: border-box; }
+        .btn { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        
+        /* Comment & Rating Section */
+        .post-action { display: flex; gap: 15px; margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px; }
+        .rating-stars { color: #ffd700; cursor: pointer; font-size: 20px; }
+        .comment-box { margin-top: 10px; font-size: 14px; background: var(--bg); padding: 8px; border-radius: 5px; }
 
-        /* Forms & Buttons */
-        input, textarea, select { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        /* Profile & Payment Info */
+        .profile-img { width: 80px; height: 80px; border-radius: 50%; background: #ddd; margin-bottom: 10px; }
+        .payment-box { background: #e7f3ff; color: #1877f2; padding: 15px; border-radius: 8px; border-left: 5px solid var(--primary); }
+
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo" onclick="showSection('home')">EduEarn</div>
+        <div class="nav-btns">
+            <button class="btn" onclick="toggleDarkMode()">🌓</button>
+            <button onclick="showSection('home')" style="background:none; border:none; color:var(--text); cursor:pointer;">🏠</button>
+            <button onclick="showSection('profile')" style="background:none; border:none; color:var(--text); cursor:pointer;">👤</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        
+        <div id="home-section">
+            <div class="card">
+                <h3>আজকের ভাবনা কি?</h3>
+                <textarea id="mainPost" placeholder="আপনার নলেজ শেয়ার করুন..."></textarea>
+                <button class="btn" onclick="addFullPost()">পাবলিশ</button>
+            </div>
+            <div id="feed-container">
+                </div>
+        </div>
+
+        <div id="profile-section" class="hidden">
+            <div class="card" style="text-align: center;">
+                <div class="profile-img" style="margin: 0 auto;"></div>
+                <h2 id="dispName">ইউজার নেম</h2>
+                <p id="dispEmail">user@example.com</p>
+                <button class="btn" style="background:var(--secondary)">প্রোফাইল এডিট</button>
+            </div>
+
+            <div class="card">
+                <h3>💳 পেমেন্ট ও বৃত্তি</h3>
+                <div class="payment-box">
+                    <p>মোট অর্জিত বৃত্তি: <strong>৳ ১,২০০</strong></p>
+                    <p>স্ট্যাটাস: 🟢 উইথড্রর জন্য এভেইলেবল</p>
+                </div>
+                <input type="text" placeholder="বিকাশ/নগদ নাম্বার দিন">
+                <button class="btn">টাকা উত্তোলন করুন</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Dark Mode Toggle
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+        }
+
+        // Section Switching
+        function showSection(id) {
+            document.getElementById('home-section').classList.add('hidden');
+            document.getElementById('profile-section').classList.add('hidden');
+            document.getElementById(id + '-section').classList.remove('hidden');
+        }
+
+        // Add Post with Rating, Comment, Share
+        function addFullPost() {
+            const text = document.getElementById('mainPost').value;
+            if(!text) return alert("কিছু লিখুন!");
+
+            const postHTML = `
+                <div class="card">
+                    <p>${text}</p>
+                    <div class="post-action">
+                        <span class="rating-stars" onclick="alert('রেটিং দেওয়ার জন্য ধন্যবাদ!')">⭐⭐⭐⭐☆</span>
+                        <span style="cursor:pointer" onclick="toggleComments(this)">💬 কমেন্ট</span>
+                        <span style="cursor:pointer; color:var(--primary)" onclick="sharePost()">🔗 শেয়ার</span>
+                    </div>
+                    <div class="comment-area hidden">
+                        <input type="text" placeholder="মন্তব্য লিখুন..." onkeypress="addComment(event, this)">
+                        <div class="comments-list"></div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('feed-container').insertAdjacentHTML('afterbegin', postHTML);
+            document.getElementById('mainPost').value = "";
+        }
+
+        function toggleComments(btn) {
+            const area = btn.parentElement.nextElementSibling;
+            area.classList.toggle('hidden');
+        }
+
+        function addComment(e, input) {
+            if(e.key === 'Enter' && input.value) {
+                const list = input.nextElementSibling;
+                list.innerHTML += `<div class="comment-box"><b>আপনি:</b> ${input.value}</div>`;
+                input.value = "";
+            }
+        }
+
+        function sharePost() {
+            const url = window.location.href;
+            navigator.clipboard.writeText(url);
+            alert("লিঙ্ক কপি হয়েছে! এখন ফেসবুক বা হোয়াটসঅ্যাপে শেয়ার করুন।");
+        }
+    </script>
+</body>
+</html>
