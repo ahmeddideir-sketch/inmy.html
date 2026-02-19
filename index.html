@@ -3,133 +3,138 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduEarn Pro - Real Knowledge Platform</title>
+    <title>EduEarn Pro - Smart LMS</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
-        :root { --primary: #4f46e5; --bg: #f3f4f6; --white: #ffffff; --text: #1f2937; }
-        .dark-mode { --bg: #111827; --white: #1f2937; --text: #f9fafb; }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: var(--text); margin: 0; transition: 0.3s; }
-        nav { background: var(--white); padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 1000; }
+        :root { --primary: #4f46e5; --secondary: #10b981; --bg: #f8fafc; --white: #ffffff; --text: #1e293b; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; transition: 0.3s; }
+        nav { background: var(--white); padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 1000; }
         .container { max-width: 600px; margin: 20px auto; padding: 0 15px; }
-        .card { background: var(--white); border-radius: 15px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        
-        /* Member Counter Style */
-        .member-stat { display: flex; justify-content: space-around; background: linear-gradient(135deg, #4f46e5, #9333ea); color: white; padding: 20px; border-radius: 15px; margin-bottom: 20px; text-align: center; }
-        
-        select, textarea, input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: 1px solid #ddd; background: var(--bg); color: var(--text); }
-        .btn { background: var(--primary); color: white; border: none; padding: 12px; border-radius: 10px; cursor: pointer; font-weight: bold; width: 100%; }
-        .badge { display: inline-block; padding: 5px 12px; border-radius: 20px; font-size: 12px; background: #e0e7ff; color: #4338ca; font-weight: bold; }
+        .card { background: var(--white); border-radius: 16px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        input, textarea, select { width: 100%; padding: 12px; margin: 10px 0; border-radius: 12px; border: 1px solid #e2e8f0; box-sizing: border-box; }
+        .btn { background: var(--primary); color: white; border: none; padding: 14px; border-radius: 12px; cursor: pointer; font-weight: bold; width: 100%; }
         .hidden { display: none; }
-        .video-box { border-radius: 10px; overflow: hidden; margin: 10px 0; background: #000; }
+        #auth-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--primary); z-index: 3000; display: flex; align-items: center; justify-content: center; color: white; }
+        .auth-card { background: white; color: #333; padding: 30px; border-radius: 20px; width: 90%; max-width: 400px; }
     </style>
 </head>
 <body>
 
-    <nav>
-        <div style="font-size: 22px; font-weight: bold; color: var(--primary); cursor: pointer;" onclick="showPage('home')">EduEarn</div>
-        <div style="display: flex; gap: 20px;">
-            <i class="fas fa-moon" onclick="toggleDark()" style="cursor:pointer;"></i>
-            <i class="fas fa-home" onclick="showPage('home')" style="cursor:pointer;"></i>
-            <i class="fas fa-trophy" onclick="showPage('awards')" style="cursor:pointer;"></i>
-            <i class="fas fa-user" onclick="showPage('profile')" style="cursor:pointer;"></i>
+    <div id="auth-screen">
+        <div class="auth-card">
+            <h2 id="auth-title">স্বাগতম!</h2>
+            <p id="auth-msg">EduEarn Pro-তে লগইন করুন</p>
+            <input type="text" id="userName" placeholder="আপনার নাম">
+            <input type="password" id="userPass" placeholder="পাসওয়ার্ড">
+            <button class="btn" onclick="handleAuth()">প্রবেশ করুন</button>
+            <p style="text-align:center; font-size:12px; margin-top:10px; cursor:pointer;" onclick="toggleAuth()">একাউন্ট নেই? রেজিস্ট্রেশন করুন</p>
         </div>
-    </nav>
+    </div>
 
-    <div class="container">
-        <div class="member-stat">
-            <div>
-                <h2 id="mCount">১,৫৪০</h2>
-                <span>মোট মেম্বার</span>
+    <div id="main-app" class="hidden">
+        <nav>
+            <div style="font-size: 22px; font-weight: 800; color: var(--primary);">EduEarn</div>
+            <div style="display: flex; gap: 20px; font-size: 20px;">
+                <i class="fas fa-home" onclick="showPage('home')"></i>
+                <i class="fas fa-brain" onclick="showPage('quiz')"></i>
+                <i class="fas fa-user-circle" onclick="showPage('profile')"></i>
             </div>
-            <div>
-                <h2 id="onlineCount">৬২</h2>
-                <span>অনলাইন</span>
-            </div>
-        </div>
+        </nav>
 
-        <div id="home-page">
-            <div class="card">
-                <h3>📢 নতুন পোস্ট করুন</h3>
-                <select id="category">
-                    <option value="ধর্ম">☪️ ধর্ম</option>
-                    <option value="আধুনিক বিজ্ঞান">🔬 আধুনিক বিজ্ঞান</option>
-                    <option value="সাহিত্য">📚 সাহিত্য</option>
-                    <option value="নিজস্ব চিন্তা">💡 নিজস্ব চিন্তা</option>
-                </select>
-                <textarea id="postText" rows="3" placeholder="আপনার বিশ্লেষণ লিখুন..."></textarea>
-                <input type="text" id="vidUrl" placeholder="YouTube লিঙ্ক দিন">
-                <button class="btn" onclick="addPost()">পাবলিশ করুন</button>
+        <div class="container">
+            <div id="home-page">
+                <div class="card">
+                    <h3 id="welcome-user">হ্যালো!</h3>
+                    <textarea id="postText" placeholder="নতুন কি শিখলেন?"></textarea>
+                    <button class="btn" onclick="addPost()">পোস্ট করুন</button>
+                </div>
+                <div id="main-feed"></div>
             </div>
-            <div id="main-feed"></div>
-        </div>
 
-        <div id="awards-page" class="hidden">
-            <div class="card">
-                <h2 style="text-align:center;">🏆 লিডারবোর্ড</h2>
-                <p>১. আহমেদ দিদার (বিজ্ঞান) - ৪.৯ ⭐</p>
-                <p>২. আব্দুল্লাহ (ধর্ম) - ৪.৭ ⭐</p>
-                <hr>
-                <button class="btn" onclick="generateCert()">সার্টিফিকেট ডাউনলোড</button>
+            <div id="quiz-page" class="hidden">
+                <div class="card" style="text-align: center;">
+                    <h3>🧠 কুইজ চ্যালেঞ্জ</h3>
+                    <p id="qText">১+১ কত?</p>
+                    <button class="btn" onclick="answer(true)">২</button>
+                    <p id="qMsg" style="margin-top:10px;"></p>
+                </div>
             </div>
-        </div>
 
-        <div id="profile-page" class="hidden">
-            <div class="card" style="text-align: center;">
-                <h3>ব্যালেন্স: ৳ <span id="wallet">০.০০</span></h3>
-                <input type="text" placeholder="বিকাশ নম্বর">
-                <button class="btn">টাকা উত্তোলন</button>
+            <div id="profile-page" class="hidden">
+                <div class="card" style="text-align:center;">
+                    <h2 id="profile-name">ইউজার নাম</h2>
+                    <h1 style="color:var(--secondary)">৳ <span id="wallet">০</span></h1>
+                    <button class="btn" onclick="logout()" style="background:#ef4444;">লগআউট</button>
+                    <p onclick="openAdmin()" style="margin-top:20px; opacity:0.3; cursor:pointer; font-size:10px;">Admin</p>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        let balance = 0;
-        let members = 1540;
+        let isLogin = true;
+        let currentUser = localStorage.getItem('user');
+        let balance = parseInt(localStorage.getItem('balance')) || 0;
 
-        function toggleDark() { document.body.classList.toggle('dark-mode'); }
-        
+        // চেক যদি ইউজার অলরেডি লগইন থাকে
+        if(currentUser) {
+            startApp(currentUser);
+        }
+
+        function toggleAuth() {
+            isLogin = !isLogin;
+            document.getElementById('auth-title').innerText = isLogin ? "স্বাগতম!" : "নতুন একাউন্ট";
+            document.getElementById('auth-msg').innerText = isLogin ? "লগইন করুন" : "তথ্য দিয়ে ফর্মটি পূরণ করুন";
+        }
+
+        function handleAuth() {
+            const name = document.getElementById('userName').value;
+            const pass = document.getElementById('userPass').value;
+            if(!name || !pass) return alert("সব ঘর পূরণ করুন!");
+            
+            localStorage.setItem('user', name);
+            startApp(name);
+        }
+
+        function startApp(name) {
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('main-app').classList.remove('hidden');
+            document.getElementById('welcome-user').innerText = `হ্যালো, ${name}! 👋`;
+            document.getElementById('profile-name').innerText = name;
+            document.getElementById('wallet').innerText = balance;
+        }
+
+        function logout() {
+            localStorage.removeItem('user');
+            location.reload();
+        }
+
         function showPage(id) {
-            ['home-page', 'awards-page', 'profile-page'].forEach(p => document.getElementById(p).classList.add('hidden'));
+            ['home-page', 'quiz-page', 'profile-page'].forEach(p => document.getElementById(p).classList.add('hidden'));
             document.getElementById(id + '-page').classList.remove('hidden');
         }
 
-        function addPost() {
-            const cat = document.getElementById('category').value;
-            const text = document.getElementById('postText').value;
-            const video = document.getElementById('vidUrl').value;
-            if(!text) return alert("কিছু লিখুন!");
-
-            let videoHTML = "";
-            if(video.includes("youtube.com") || video.includes("youtu.be")) {
-                const id = video.split('v=')[1] || video.split('/').pop();
-                videoHTML = `<div class="video-box"><iframe width="100%" height="250" src="https://www.youtube.com/embed/${id}" frameborder="0" allowfullscreen></iframe></div>`;
+        function answer(correct) {
+            if(correct) {
+                balance += 5;
+                localStorage.setItem('balance', balance);
+                document.getElementById('wallet').innerText = balance;
+                document.getElementById('qMsg').innerHTML = "✅ ৫ টাকা পেয়েছেন!";
             }
+        }
 
-            const post = `<div class="card"><span class="badge">${cat}</span><p>${text}</p>${videoHTML}<div class="rating" onclick="addMoney()">⭐⭐⭐⭐⭐ (৫.০)</div></div>`;
+        function openAdmin() {
+            if(prompt("Admin Pass?") === "1234") alert("Admin Access Granted");
+        }
+
+        function addPost() {
+            const text = document.getElementById('postText').value;
+            if(!text) return;
+            const post = `<div class="card"><b>${localStorage.getItem('user')}:</b><p>${text}</p></div>`;
             document.getElementById('main-feed').insertAdjacentHTML('afterbegin', post);
-            
-            // নতুন পোস্ট হলে মেম্বার ১ জন বাড়ে (সিমুলেশন)
-            members++;
-            document.getElementById('mCount').innerText = members.toLocaleString('bn-BD');
-            
             document.getElementById('postText').value = "";
-            document.getElementById('vidUrl').value = "";
-        }
-
-        function addMoney() {
-            balance += 10;
-            document.getElementById('wallet').innerText = balance.toFixed(2);
-            alert("আপনার ফান্ডে ১০ টাকা যোগ হয়েছে!");
-        }
-
-        function generateCert() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF({ orientation: 'landscape' });
-            doc.text("EduEarn Official Certificate", 148, 80, null, null, 'center');
-            doc.text("অসামান্য অবদানের জন্য আপনাকে এই স্বীকৃতি দেওয়া হলো", 148, 110, null, null, 'center');
-            doc.save("certificate.pdf");
         }
     </script>
 </body>
-                    </html>
+</html>
