@@ -254,5 +254,73 @@
             document.getElementById('admin-panel').classList.add('hidden');
         }
     </script>
+    <div id="admin-panel" class="hidden" style="position: fixed; inset: 0; background: #fff; z-index: 2000; overflow-y: auto;">
+    <div style="background: #1877F2; color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center;">
+        <h2 style="margin:0;">🛠 Admin Dashboard</h2>
+        <button onclick="document.getElementById('admin-panel').classList.add('hidden')" style="background:white; color:#1877F2; border:none; padding:8px 15px; border-radius:5px; font-weight:bold; cursor:pointer;">বন্ধ করুন</button>
+    </div>
+
+    <div class="container">
+        <div class="card" style="border-left: 5px solid #1877F2;">
+            <h3 style="margin-top:0;">📝 নতুন কুইজ সেট করুন</h3>
+            <label>প্রশ্ন:</label>
+            <input type="text" id="admQ" placeholder="যেমন: ১+১ কত?">
+            
+            <div style="display: flex; gap: 10px;">
+                <div style="flex: 1;">
+                    <label>সঠিক উত্তর:</label>
+                    <input type="text" id="admCorrect" placeholder="২">
+                </div>
+                <div style="flex: 1;">
+                    <label>ভুল উত্তর:</label>
+                    <input type="text" id="admWrong" placeholder="৩">
+                </div>
+            </div>
+            <button class="btn" onclick="adminUpdateQuiz()">লাইভ কুইজ আপডেট করুন</button>
+        </div>
+
+        <div class="card" style="border-left: 5px solid #42b72a;">
+            <h3 style="margin-top:0;">💰 বৃত্তি প্রদান</h3>
+            <input type="number" id="admCash" placeholder="টাকার পরিমান">
+            <button class="btn" style="background:#42b72a;" onclick="adminUpdateCash()">টাকা পাঠান</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function adminUpdateQuiz() {
+        const q = document.getElementById('admQ').value;
+        const c = document.getElementById('admCorrect').value;
+        const w = document.getElementById('admWrong').value;
+
+        if(!q || !c || !w) return alert("সব ঘর পূরণ করুন!");
+
+        // কুইজ ট্যাব আপডেট
+        document.getElementById('quiz-tab').innerHTML = `
+            <div class="card" style="text-align:center;">
+                <h3>🧠 ডেইলি কুইজ</h3>
+                <p style="font-size: 18px; font-weight: bold;">${q}</p>
+                <button class="btn" style="margin-bottom:10px;" onclick="submitQuiz(true)">${c}</button>
+                <button class="btn" style="background:#65676b;" onclick="submitQuiz(false)">${w}</button>
+                <p id="q-sms" style="color: green; font-weight: bold; margin-top: 10px;"></p>
+            </div>
+        `;
+
+        alert("কুইজ লাইভ হয়েছে!");
+        document.getElementById('admin-panel').classList.add('hidden');
+    }
+
+    function adminUpdateCash() {
+        const amt = parseInt(document.getElementById('admCash').value);
+        if(!amt) return alert("পরিমান লিখুন");
+        user.wallet += amt;
+        updateUI(); 
+        alert(amt + " টাকা পাঠানো হয়েছে!");
+        document.getElementById('admin-panel').classList.add('hidden');
+    }
+</script>
+
+
+
 </body>
                                                                                                          </html>
