@@ -317,7 +317,48 @@
         updateUI(); 
         alert(amt + " টাকা পাঠানো হয়েছে!");
         document.getElementById('admin-panel').classList.add('hidden');
+    // আপনার শিট থেকে অটোমেটিক ডেটা পাওয়ার লিঙ্ক
+const sheetURL = "https://docs.google.com/spreadsheets/d/17DHR3d7lQswtF14Rf8JtdAm5_AtsULgRUQbqZSMB-JA/export?format=csv";
+
+async function loadQuizFromSheet() {
+    try {
+        const response = await fetch(sheetURL);
+        const data = await response.text();
+        
+        // CSV ডেটাকে লাইনে ভাগ করা
+        const rows = data.split('\n').map(row => row.split(','));
+        
+        // rows[1] মানে ২য় সারি (যেখানে প্রশ্ন আছে)
+        // trim() ব্যবহার করা হয়েছে যাতে বাড়তি স্পেস কেটে যায়
+        if (rows.length > 1) {
+            const question = rows[1][0].trim();
+            const correct = rows[1][1] ? rows[1][1].trim() : "No Option";
+            const wrong = rows[1][2] ? rows[1][2].trim() : "No Option";
+
+            document.getElementById('quiz-container').innerHTML = `
+                <h3>🧠 লাইভ কুইজ চ্যালেঞ্জ</h3>
+                <p style="font-size: 18px; font-weight: bold;">${question}</p>
+                <button class="btn" onclick="checkAns(true)">${correct}</button>
+                <button class="btn" style="background:#65676b; margin-top:10px;" onclick="checkAns(false)">${wrong}</button>
+                <p id="q-sms" style="color: green; font-weight: bold; margin-top: 10px;"></p>
+            `;
+        }
+    } catch (error) {
+        console.error("শিট লোড করতে সমস্যা হচ্ছে:", error);
+        document.getElementById('quiz-container').innerHTML = "<p>কুইজ লোড হচ্ছে না। আপনার ইন্টারনেট চেক করুন।</p>";
     }
+}
+
+// পেজ লোড হলে কুইজ ফাংশনটি চালু হবে
+window.onload = () => {
+    if(user) {
+        document.getElementById('reg-screen').classList.add('hidden');
+        document.getElementById('main-app').classList.remove('hidden');
+        updateUI();
+    }
+    loadQuizFromSheet(); // শিট থেকে কুইজ আনবে
+};
+}
 </script>
 
 
