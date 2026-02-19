@@ -370,7 +370,56 @@ window.onload = () => {
         updateUI();
     }
     loadQuizFromSheet(); // শিট থেকে কুইজ আনবে
-};
+};function showTab(tab) {
+    // সব ট্যাব লুকানো
+    ['home', 'quiz', 'profile', 'leaderboard'].forEach(t => {
+        const el = document.getElementById(t + '-tab');
+        if(el) el.classList.add('hidden');
+    });
+    
+    // নির্দিষ্ট ট্যাব দেখানো
+    document.getElementById(tab + '-tab').classList.remove('hidden');
+    
+    // আইকন কালার পরিবর্তন
+    document.querySelectorAll('.nav-icons i').forEach(i => i.classList.remove('active'));
+    document.getElementById(tab[0] + '-btn').classList.add('active');
+
+    // যদি লিডারবোর্ড ট্যাব হয় তবে লিস্ট আপডেট করা
+    if(tab === 'leaderboard') updateLeaderboard();
+}
+
+function updateLeaderboard() {
+    const table = document.getElementById('lb-table');
+    // হেডার বাদে বাকি সব ক্লিয়ার করা
+    table.innerHTML = `
+        <tr style="background:#f8f9fa; border-bottom: 2px solid #ddd;">
+            <th style="padding:10px; text-align:left;">র‍্যাঙ্ক</th>
+            <th style="padding:10px; text-align:left;">নাম</th>
+            <th style="padding:10px; text-align:right;">পয়েন্ট (৳)</th>
+        </tr>`;
+
+    // বর্তমান ইউজারের ডেটা দিয়ে একটি ডামি লিস্ট তৈরি (রিয়েল ডাটাবেজ ছাড়া এটি শুধু ডামি দেখাবে)
+    // আপনি চাইলে গুগল শিট থেকেও সবার ডেটা এখানে আনতে পারেন
+    const dummyData = [
+        {name: user.name, wallet: user.wallet},
+        {name: "আরিফ রহমান", wallet: 500},
+        {name: "সুমাইয়া আক্তার", wallet: 350},
+        {name: "হাসান আলী", wallet: 200}
+    ];
+
+    // পয়েন্ট অনুযায়ী সাজানো (Sorting)
+    dummyData.sort((a, b) => b.wallet - a.wallet);
+
+    dummyData.forEach((student, index) => {
+        const row = `
+            <tr style="border-bottom: 1px solid #eee;">
+                <td style="padding:10px;">#${index + 1}</td>
+                <td style="padding:10px;">${student.name} ${student.name === user.name ? '(আপনি)' : ''}</td>
+                <td style="padding:10px; text-align:right; font-weight:bold; color:green;">${student.wallet}</td>
+            </tr>`;
+        table.innerHTML += row;
+    });
+}
 }
 </script>
 
