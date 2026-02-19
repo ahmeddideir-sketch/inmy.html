@@ -3,142 +3,256 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduEarn Pro - Smart LMS</title>
+    <title>EduEarn Pro | Student Social Platform</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
-        :root { --primary: #4f46e5; --bg: #f1f5f9; --white: #ffffff; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; }
+        :root { --fb-blue: #1877F2; --fb-bg: #F0F2F5; --white: #ffffff; --text: #1c1e21; --gray: #65676b; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--fb-bg); color: var(--text); margin: 0; padding-bottom: 60px; }
         .hidden { display: none !important; }
-        
-        /* Auth Screen Style */
-        #auth-screen { position: fixed; inset: 0; background: var(--primary); display: flex; align-items: center; justify-content: center; z-index: 9999; }
-        .auth-card { background: white; padding: 30px; border-radius: 20px; width: 90%; max-width: 380px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
-        
-        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: 1px solid #ddd; box-sizing: border-box; }
-        .btn { background: var(--primary); color: white; border: none; padding: 14px; border-radius: 10px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
-        
-        nav { background: white; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); sticky; top:0; }
-        .container { max-width: 500px; margin: 20px auto; padding: 0 15px; }
-        .card { background: white; border-radius: 15px; padding: 20px; margin-bottom: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+
+        /* Navigation */
+        nav { background: var(--white); height: 56px; display: flex; justify-content: space-between; align-items: center; padding: 0 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 1000; }
+        .nav-logo { font-weight: bold; color: var(--fb-blue); font-size: 24px; cursor: pointer; }
+        .nav-icons i { font-size: 22px; margin: 0 12px; color: var(--gray); cursor: pointer; transition: 0.3s; }
+        .nav-icons i.active { color: var(--fb-blue); border-bottom: 3px solid var(--fb-blue); padding-bottom: 5px; }
+
+        /* Container */
+        .container { max-width: 580px; margin: 15px auto; padding: 0 10px; }
+        .card { background: var(--white); border-radius: 10px; padding: 15px; margin-bottom: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+
+        /* Post Box */
+        .post-box-header { display: flex; align-items: center; gap: 10px; }
+        .avatar { width: 40px; height: 40px; background: #e4e6eb; border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .fake-input { background: #f0f2f5; border-radius: 20px; padding: 10px 15px; flex-grow: 1; color: var(--gray); cursor: pointer; }
+
+        /* Inputs */
+        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 14px; }
+        .btn { background: var(--fb-blue); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; font-size: 15px; }
+        .btn-green { background: #42b72a; }
+
+        /* Feed Post */
+        .post-card { background: white; border-radius: 10px; padding: 15px; margin-bottom: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .post-meta { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .cat-badge { background: #e7f3ff; color: var(--fb-blue); font-size: 11px; padding: 3px 8px; border-radius: 5px; font-weight: bold; }
+        .post-actions { display: flex; border-top: 1px solid #eee; padding-top: 10px; margin-top: 10px; justify-content: space-around; color: var(--gray); font-size: 14px; }
+        .action-item { cursor: pointer; display: flex; align-items: center; gap: 5px; }
+        .action-item:hover { color: var(--fb-blue); }
+
+        /* Progress Bar */
+        .prog-bg { background: #e4e6eb; border-radius: 10px; height: 8px; margin: 10px 0; }
+        .prog-fill { background: var(--fb-blue); height: 100%; border-radius: 10px; width: 0%; transition: 0.5s; }
+
+        /* Admin Overlay */
+        #admin-panel { position: fixed; inset: 0; background: white; z-index: 2000; padding: 20px; overflow-y: auto; }
     </style>
 </head>
 <body>
 
-    <div id="auth-screen">
-        <div class="auth-card">
-            <h2 id="auth-title">EduEarn Pro</h2>
-            <p id="auth-desc">নতুন একাউন্ট খুলতে নাম ও পাসওয়ার্ড দিন</p>
-            <input type="text" id="userName" placeholder="আপনার নাম লিখুন">
-            <input type="password" id="userPass" placeholder="একটি পাসওয়ার্ড দিন">
-            <button class="btn" onclick="handleAuth()">শুরু করুন</button>
+    <div id="reg-screen" class="container">
+        <div class="card" style="text-align:center;">
+            <h2 style="color: var(--fb-blue);">EduEarn Pro</h2>
+            <p>আপনার প্রোফাইল তথ্য সঠিকভাবে পূরণ করুন</p>
+            <input type="text" id="rName" placeholder="আপনার নাম">
+            <input type="number" id="rAge" placeholder="বয়স">
+            <input type="text" id="rClass" placeholder="শ্রেণী">
+            <input type="text" id="rYear" placeholder="শিক্ষা বর্ষ">
+            <input type="email" id="rEmail" placeholder="ইমেইল">
+            <input type="text" id="rContact" placeholder="মোবাইল নম্বর">
+            <button class="btn" onclick="saveProfile()">একাউন্ট তৈরি করুন</button>
         </div>
     </div>
 
     <div id="main-app" class="hidden">
         <nav>
-            <div style="font-weight: 800; color: var(--primary); font-size: 20px;">EduEarn</div>
-            <div style="display: flex; gap: 20px; font-size: 18px; color: #64748b;">
-                <i class="fas fa-home" onclick="showPage('home')"></i>
-                <i class="fas fa-brain" onclick="showPage('quiz')"></i>
-                <i class="fas fa-user" onclick="showPage('profile')"></i>
+            <div class="nav-logo" onclick="showTab('home')">EduEarn</div>
+            <div class="nav-icons">
+                <i id="h-icon" class="fas fa-home active" onclick="showTab('home')"></i>
+                <i id="q-icon" class="fas fa-brain" onclick="showTab('quiz')"></i>
+                <i id="p-icon" class="fas fa-user-circle" onclick="showTab('profile')"></i>
             </div>
         </nav>
 
         <div class="container">
-            <div id="home-page">
+            <div id="home-tab">
                 <div class="card">
-                    <h3 id="welcome-text">হ্যালো!</h3>
-                    <textarea id="postText" style="width:100%; height:80px; padding:10px; border-radius:10px; border:1fr solid #ddd;" placeholder="নতুন কিছু লিখুন..."></textarea>
-                    <button class="btn" onclick="addPost()">পোস্ট করুন</button>
+                    <div class="post-box-header">
+                        <div class="avatar"><i class="fas fa-user"></i></div>
+                        <div class="fake-input" onclick="document.getElementById('post-modal').classList.toggle('hidden')">আপনি কী ভাবছেন?</div>
+                    </div>
+                    <div id="post-modal" class="hidden" style="margin-top:15px; border-top:1px solid #eee; padding-top:10px;">
+                        <select id="pCat">
+                            <option value="বিজ্ঞান">🔬 বিজ্ঞান</option>
+                            <option value="ইসলাম">☪️ ইসলাম</option>
+                            <option value="সাহিত্য">📚 সাহিত্য</option>
+                            <option value="নিজস্ব চিন্তা">💡 নিজস্ব চিন্তা</option>
+                        </select>
+                        <textarea id="pText" rows="3" placeholder="বিস্তারিত লিখুন..."></textarea>
+                        <input type="text" id="pLink" placeholder="Google/Youtube লিঙ্ক (যদি থাকে)">
+                        <button class="btn" onclick="createPost()">পাবলিশ করুন</button>
+                    </div>
                 </div>
-                <div id="feed"></div>
+                <div id="feed-area"></div>
             </div>
 
-            <div id="quiz-page" class="hidden">
+            <div id="quiz-tab" class="hidden">
                 <div class="card" style="text-align:center;">
-                    <h3>🧠 ডেইলি চ্যালেঞ্জ</h3>
-                    <p>বাংলাদেশের জাতীয় ফুল কোনটি?</p>
-                    <button class="btn" onclick="addMoney(10)">শাপলা (১০ টাকা বোনাস)</button>
+                    <h3>🧠 ডেইলি কুইজ</h3>
+                    <p id="active-q">আইনস্টাইন কোন দেশের বিজ্ঞানী ছিলেন?</p>
+                    <button class="btn" style="margin-bottom:10px;" onclick="submitQuiz(true)">জার্মানি</button>
+                    <button class="btn" style="background:var(--gray);" onclick="submitQuiz(false)">আমেরিকা</button>
+                    <p id="q-sms" style="color: green; font-weight: bold; margin-top: 10px;"></p>
                 </div>
             </div>
 
-            <div id="profile-page" class="hidden">
-                <div class="card" style="text-align:center;">
-                    <h2 id="p-name">ইউজার</h2>
-                    <h1 style="color:#10b981;">৳ <span id="wallet">০</span></h1>
-                    <button class="btn" style="background:#f43f5e;" onclick="logout()">লগআউট</button>
+            <div id="profile-tab" class="hidden">
+                <div class="card">
+                    <div style="text-align: center;">
+                        <div style="width:80px; height:80px; background:#f0f2f5; border-radius:50%; margin:0 auto; display:flex; align-items:center; justify-content:center; font-size:40px; color:var(--fb-blue);"><i class="fas fa-user-graduate"></i></div>
+                        <h2 id="viewName">Name</h2>
+                        <span class="cat-badge" id="viewClass">Class</span> | <span class="cat-badge" id="viewYear">Year</span>
+                    </div>
+                    <hr>
+                    <p>📧 ইমেইল: <span id="viewEmail"></span></p>
+                    <p>📞 কন্টাক্ট: <span id="viewContact"></span></p>
+                    <div class="prog-bg"><div id="prog-bar" class="prog-fill"></div></div>
+                    <p style="font-size:12px; color:var(--gray);">ডেইলি প্রগ্রেস: <span id="prog-val">0</span>%</p>
+                    <hr>
+                    <div style="display:flex; justify-content: space-between; align-items: center;">
+                        <h3>ওয়ালেট: ৳ <span id="viewWallet">0</span></h3>
+                        <button class="btn btn-green" style="width: 120px;" onclick="withdraw()">Withdraw</button>
+                    </div>
+                    <button class="btn" style="background:#eee; color:#333; margin-top:15px;" onclick="generateCert()">সার্টিফিকেট ডাউনলোড</button>
+                    <p onclick="adminGate()" style="text-align:center; font-size:10px; color:#ddd; margin-top:20px; cursor:pointer;">Admin Login</p>
                 </div>
             </div>
         </div>
     </div>
 
+    <div id="admin-panel" class="hidden">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h2>🛠 অ্যাডমিন ড্যাশবোর্ড</h2>
+            <button onclick="document.getElementById('admin-panel').classList.add('hidden')" style="background:red; color:white; border:none; padding:5px 10px; border-radius:5px;">বন্ধ করুন</button>
+        </div>
+        <div class="card">
+            <h3>বৃত্তি আপডেট (টাকার পরিমান)</h3>
+            <input type="number" id="admCash" placeholder="পরিমান দিন">
+            <button class="btn" onclick="adminUpdateCash()">টাকা পাঠান</button>
+        </div>
+        <div class="card">
+            <h3>নতুন কুইজ সেট করুন</h3>
+            <input type="text" id="admQ" placeholder="প্রশ্ন">
+            <button class="btn btn-green" onclick="alert('কুইজ আপডেট হয়েছে!')">কুইজ আপডেট</button>
+        </div>
+    </div>
+
     <script>
-        // পেজ লোড হওয়ার সময় ইউজার চেক করা
-        window.onload = function() {
-            const savedUser = localStorage.getItem('activeUser');
-            if(savedUser) {
-                startApp(savedUser);
+        let user = JSON.parse(localStorage.getItem('eduUser')) || null;
+
+        window.onload = () => { if(user) startApp(); };
+
+        function saveProfile() {
+            user = {
+                name: document.getElementById('rName').value,
+                age: document.getElementById('rAge').value,
+                class: document.getElementById('rClass').value,
+                year: document.getElementById('rYear').value,
+                email: document.getElementById('rEmail').value,
+                contact: document.getElementById('rContact').value,
+                wallet: 0,
+                progress: 10
+            };
+            if(!user.name || !user.contact) return alert("তথ্য পূরণ করুন!");
+            localStorage.setItem('eduUser', JSON.stringify(user));
+            startApp();
+            alert("SMS: আপনার একাউন্ট EduEarn Pro-তে সফলভাবে খোলা হয়েছে।");
+        }
+
+        function startApp() {
+            document.getElementById('reg-screen').classList.add('hidden');
+            document.getElementById('main-app').classList.remove('hidden');
+            updateUI();
+        }
+
+        function updateUI() {
+            document.getElementById('viewName').innerText = user.name;
+            document.getElementById('viewClass').innerText = user.class;
+            document.getElementById('viewYear').innerText = user.year;
+            document.getElementById('viewEmail').innerText = user.email;
+            document.getElementById('viewContact').innerText = user.contact;
+            document.getElementById('viewWallet').innerText = user.wallet;
+            document.getElementById('prog-bar').style.width = user.progress + "%";
+            document.getElementById('prog-val').innerText = user.progress;
+            localStorage.setItem('eduUser', JSON.stringify(user));
+        }
+
+        function showTab(tab) {
+            ['home', 'quiz', 'profile'].forEach(t => document.getElementById(t+'-tab').classList.add('hidden'));
+            document.getElementById(tab+'-tab').classList.remove('hidden');
+            document.querySelectorAll('.nav-icons i').forEach(i => i.classList.remove('active'));
+            document.getElementById(tab[0]+'-icon').classList.add('active');
+        }
+
+        function createPost() {
+            const txt = document.getElementById('pText').value;
+            const cat = document.getElementById('pCat').value;
+            const lnk = document.getElementById('pLink').value;
+            if(!txt) return;
+
+            const post = `
+                <div class="post-card">
+                    <div class="post-meta">
+                        <div class="avatar"><i class="fas fa-user"></i></div>
+                        <div><b>${user.name}</b> <br> <span class="cat-badge">${cat}</span></div>
+                    </div>
+                    <p>${txt}</p>
+                    ${lnk ? `<a href="${lnk}" target="_blank" style="color:var(--fb-blue); font-size:13px; text-decoration:none;">${lnk}</a>` : ''}
+                    <div class="post-actions">
+                        <div class="action-item" onclick="this.style.color='#1877F2'"><i class="far fa-thumbs-up"></i> রেটিং</div>
+                        <div class="action-item"><i class="far fa-comment"></i> কমেন্ট</div>
+                        <div class="action-item"><i class="fas fa-share"></i> শেয়ার</div>
+                    </div>
+                </div>`;
+            document.getElementById('feed-area').insertAdjacentHTML('afterbegin', post);
+            document.getElementById('pText').value = ""; document.getElementById('post-modal').classList.add('hidden');
+            user.progress = Math.min(100, user.progress + 5); updateUI();
+        }
+
+        function submitQuiz(isCorrect) {
+            if(isCorrect) {
+                user.wallet += 20; user.progress = Math.min(100, user.progress + 10);
+                document.getElementById('q-sms').innerText = "RESULT SMS: অভিনন্দন! আপনি ২০ টাকা বৃত্তি পেয়েছেন।";
+            } else {
+                alert("ভুল উত্তর। আবার চেষ্টা করুন।");
             }
-        };
-
-        function handleAuth() {
-            const name = document.getElementById('userName').value.trim();
-            const pass = document.getElementById('userPass').value.trim();
-
-            if(name === "" || pass === "") {
-                alert("দয়া করে নাম এবং পাসওয়ার্ড দিন!");
-                return;
-            }
-
-            // নতুন একাউন্ট সেভ করা
-            localStorage.setItem('activeUser', name);
-            if(!localStorage.getItem('bal_' + name)) {
-                localStorage.setItem('bal_' + name, '0');
-            }
-            
-            startApp(name);
+            updateUI();
         }
 
-        function startApp(name) {
-            document.getElementById('auth-screen').style.display = 'none'; // লগইন স্ক্রিন বন্ধ
-            document.getElementById('main-app').classList.remove('hidden'); // মেইন অ্যাপ চালু
-            document.getElementById('welcome-text').innerText = `হ্যালো, ${name}! 👋`;
-            document.getElementById('p-name').innerText = name;
-            
-            // ব্যালেন্স লোড করা
-            const userBal = localStorage.getItem('bal_' + name) || '0';
-            document.getElementById('wallet').innerText = userBal;
+        function withdraw() {
+            if(user.wallet < 500) alert("উত্তোলনের জন্য কমপক্ষে ৫০০ টাকা প্রয়োজন।");
+            else alert("আপনার বিকাশ নম্বরে পেমেন্ট রিকোয়েস্ট পাঠানো হয়েছে।");
         }
 
-        function addMoney(amount) {
-            const name = localStorage.getItem('activeUser');
-            let currentBal = parseInt(localStorage.getItem('bal_' + name)) || 0;
-            currentBal += amount;
-            localStorage.setItem('bal_' + name, currentBal);
-            document.getElementById('wallet').innerText = currentBal;
-            alert(amount + " টাকা যোগ হয়েছে!");
+        function generateCert() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('l');
+            doc.setFontSize(22); doc.setTextColor(24, 119, 242);
+            doc.text("EduEarn Pro Official Certificate", 148, 80, null, null, 'center');
+            doc.setFontSize(16); doc.setTextColor(100);
+            doc.text(`এটি প্রত্যায়ন করা যাচ্ছে যে, ${user.name}`, 148, 110, null, null, 'center');
+            doc.text("শিক্ষা ও গবেষণায় অসামান্য অবদানের জন্য তাকে এই স্বীকৃতি দেওয়া হলো।", 148, 130, null, null, 'center');
+            doc.save(`${user.name}-certificate.pdf`);
         }
 
-        function showPage(pageId) {
-            ['home-page', 'quiz-page', 'profile-page'].forEach(p => {
-                document.getElementById(p).classList.add('hidden');
-            });
-            document.getElementById(pageId + '-page').classList.remove('hidden');
+        function adminGate() {
+            if(prompt("Admin Password?") === "1234") document.getElementById('admin-panel').classList.remove('hidden');
         }
 
-        function addPost() {
-            const text = document.getElementById('postText').value;
-            const user = localStorage.getItem('activeUser');
-            if(!text) return;
-            const postHTML = `<div class="card"><b>${user}:</b><p>${text}</p></div>`;
-            document.getElementById('feed').insertAdjacentHTML('afterbegin', postHTML);
-            document.getElementById('postText').value = "";
-        }
-
-        function logout() {
-            localStorage.removeItem('activeUser');
-            location.reload();
+        function adminUpdateCash() {
+            user.wallet += parseInt(document.getElementById('admCash').value || 0);
+            updateUI(); alert("টাকা সফলভাবে পাঠানো হয়েছে!");
+            document.getElementById('admin-panel').classList.add('hidden');
         }
     </script>
 </body>
-</html>
+                                                                                                         </html>
